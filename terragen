@@ -33,13 +33,21 @@ clear
 #                        | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
 #                        | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
 #                        | tr '[:upper:]' '[:lower:]')
-#
+
 #echo $snakeCaseLambdaName
 #echo "iam_p_${snakeCaseLambdaName}.tpl" | sed s/"_service"//
 
 if [ $1 = "lambda" ]; then
     echo -n "Enter new lambda name: "
     read LAMBDA_NAME
+
+
+    ###################################################
+    # Utils
+    snakeCaseLambdaName=$(echo $LAMBDA_NAME                                        \
+                            | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
+                            | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
+                            | tr '[:upper:]' '[:lower:]')
 
 
     ###################################################
@@ -64,7 +72,7 @@ if [ $1 = "lambda" ]; then
     #
     lambdaTerraformPath="lambda/${LAMBDA_NAME}"
     lambdaPoliciesPath="${lambdaTerraformPath}/policies"
-    #lambdaPolicyName="iam_p_${snakeCaseLambdaName//_service/}.tpl"
+    lambdaPolicyName=$(echo "iam_p_${snakeCaseLambdaName}.tpl" | sed s/"_service"//)
     configsTerraformPath="configs/${LAMBDA_NAME}"
 
     ####################################################
@@ -83,7 +91,7 @@ if [ $1 = "lambda" ]; then
     cp $lambdaTerraformTemplate "${lambdaTerraformPath}/main.tf"
     #   - Copiar archivo scripts/templates/lambda_policy_template.tpl a lambda/NombreDeLaLambda/policies/main.tf
     mkdir -p -v $lambdaPoliciesPath
-    cp $lambdaPolicyTemplate "${lambdaPoliciesPath}/iam_p_lambda_name.tpl"
+    cp $lambdaPolicyTemplate "${lambdaPoliciesPath}/${lambdaPolicyName}"
     #   - Correr script de symlinks/variables/outputs
     ln -s ../../commons.tf "${lambdaTerraformPath}/commons.tf"
     ln -s ../global_variables.tf "${lambdaTerraformPath}/global_variables.tf"
