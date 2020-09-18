@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# Correr script desde el root path del repo de terraform
+
+# Inputs:
+#   - Nombre de la lambda
+#   - Booleano indicando si tiene configs
+
+# En TERRAFORM
+# Lambda:
+#   - Copiar archivo scripts/templates/lambda_terraform_template.tf a lambda/NombreDeLaLambda/main.tf
+#   - Copiar archivo scripts/templates/lambda_policy_template.tpl a lambda/NombreDeLaLambda/policies/main.tf
+#   - Correr script de symlinks/variables/outputs
+# Configs:
+#   - Si tiene configs, copiar scripts/templates/configs_terraform_template.tf a configs/NombreDeLaLambda/main.tf
+#   - Correr script de symlinks/variables/outputs
+
+# En TERRAGRUNT
+# Ubicarse en la carpeta root del repo de terragrunt
+# Lambda:
+#   - Copiar archivo scripts/templates/lambda_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
+# Configs:
+#   - Si tiene configs, copiar archivo scripts/templates/configs_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
+
+
+clear
+
+#branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
+#
+#echo $branch
+#
+#snakeCaseLambdaName=$(echo "HabilitameSarlompasAMService"                                               \
+#                        | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
+#                        | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
+#                        | tr '[:upper:]' '[:lower:]')
+#
+#echo $snakeCaseLambdaName
+#echo "iam_p_${snakeCaseLambdaName}.tpl" | sed s/"_service"//
+
+if [ $1 = "lambda" ]; then
+    echo -n "Enter new lambda name: "
+    read LAMBDA_NAME
+
+
+    ###################################################
+    # Templates variables
+    full_path=$(realpath $0)
+
+    dir_path=$(dirname $full_path)
+    templatesPath="${dir_path}/templates"
+    #
+    lambdaTerraformTemplate="${templatesPath}/lambda_terraform_template.tf"
+    lambdaOutputsTemplate="${templatesPath}/lambda_outputs_template.tf"
+    lambdaPolicyTemplate="${templatesPath}/lambda_policy_template.tpl"
+    configsTerraformTemplate="${templatesPath}/configs_terraform_template.tf"
+    configsVariablesTemplate="${templatesPath}/configs_variables_template.tf"
+    #
+    lambdaTerragruntTemplate="${templatesPath}/lambda_terragrunt_template.hcl"
+    configsTerragruntTemplate="${templatesPath}/configs_terragrunt_template.hcl"
+
+    ####################################################
+    # Terraform
+    terraformPath="${PWD##*/}"
+    #
+    lambdaTerraformPath="lambda/${LAMBDA_NAME}"
+    lambdaPoliciesPath="${lambdaTerraformPath}/policies"
+    #lambdaPolicyName="iam_p_${snakeCaseLambdaName//_service/}.tpl"
+    configsTerraformPath="configs/${LAMBDA_NAME}"
+
+    ####################################################
+    # Terraform variables
+    terragruntPath="../${terraformPath}-live"
+    #
+    lambdaTerragruntPath="dev/lambda/${LAMBDA_NAME}"
+    configsTerragruntPath="dev/configs/${LAMBDA_NAME}"
+
+
+    ###################################################################################################################
+    # TERRAFORM
+    # Lambda:
+    #   - Copiar archivo scripts/templates/lambda_terraform_template.tf a lambda/NombreDeLaLambda/main.tf
+    mkdir -p -v $lambdaTerraformPath
+    cp $lambdaTerraformTemplate "${lambdaTerraformPath}/main.tf"
+    #   - Copiar archivo scripts/templates/lambda_policy_template.tpl a lambda/NombreDeLaLambda/policies/main.tf
+    mkdir -p -v $lambdaPoliciesPath
+    cp $lambdaPolicyTemplate "${lambdaPoliciesPath}/iam_p_lambda_name.tpl"
+    #   - Correr script de symlinks/variables/outputs
+    ln -s ../../commons.tf "${lambdaTerraformPath}/commons.tf"
+    ln -s ../global_variables.tf "${lambdaTerraformPath}/global_variables.tf"
+    cp $lambdaOutputsTemplate "${lambdaTerraformPath}/outputs.tf"
+    touch "${lambdaTerraformPath}/variables.tf"
+    #
+    # Configs:
+    #   - Si tiene configs, copiar scripts/templates/configs_terraform_template.tf a configs/NombreDeLaLambda/main.tf
+    mkdir -p -v $configsTerraformPath
+    cp $configsTerraformTemplate "${configsTerraformPath}/main.tf"
+    #   - Correr script de symlinks/variables/outputs
+    ln -s -v ../../commons.tf "${configsTerraformPath}/commons.tf"
+    ln -s -v ../global_variables.tf "${configsTerraformPath}/global_variables.tf"
+    cp $configsVariablesTemplate "${configsTerraformPath}/variables.tf"
+    #
+    # Add to git commit
+    git add $lambdaTerraformPath
+    git add $configsTerraformPath
+
+
+    ###################################################################################################################
+    # TERRAGRUNT
+    # Ubicarse en la carpeta root del repo de terragrunt
+    cd $terragruntPath
+    # Lambda:
+    #   - Copiar archivo scripts/templates/lambda_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
+    mkdir -p -v $lambdaTerragruntPath
+    cp $lambdaTerragruntTemplate "${lambdaTerragruntPath}/terragrunt.hcl"
+    #
+    # Configs:
+    #   - Si tiene configs, copiar archivo scripts/templates/configs_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
+    mkdir -p -v $configsTerragruntPath
+    cp $configsTerragruntTemplate "${configsTerragruntPath}/terragrunt.hcl"
+    #
+    # Add to git commit
+    git add $lambdaTerragruntPath
+    git add $configsTerragruntPath
+
+    echo "Lambda created successfully! :)"
+else
+    RED='\033[0;31m'
+    NC='\033[0m'
+    echo -e "Invalid option ${RED}[${1}]${NC} :("
+    echo "Maybe you wanted to say:"
+    echo "       terragen lambda"
+fi
