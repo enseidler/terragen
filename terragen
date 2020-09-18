@@ -113,12 +113,12 @@ if [ $1 = "lambda" ]; then
     cp $configsVariablesTemplate "${configsTerraformPath}/variables.tf"
     #
     # Replace names in files
-    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
-    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
-    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/artifactId/${ARTIFACT_ID}/g"
-    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/iam_p_lambda_name.tpl/${lambdaPolicyName}/g"
-    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
-    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/lambda_name_service/${snakeCaseLambdaName}/g" 2> /dev/null
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/LambdaNameService/${LAMBDA_NAME}/g" 2> /dev/null
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/artifactId/${ARTIFACT_ID}/g" 2> /dev/null
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/iam_p_lambda_name.tpl/${lambdaPolicyName}/g" 2> /dev/null
+    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/lambda_name_service/${snakeCaseLambdaName}/g" 2> /dev/null
+    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "" -e "s/LambdaNameService/${LAMBDA_NAME}/g" 2> /dev/null
     #
     # Add to git commit
     git add $lambdaTerraformPath
@@ -141,12 +141,12 @@ if [ $1 = "lambda" ]; then
     cp $configsTerragruntTemplate "${configsTerragruntPath}/terragrunt.hcl"
     #
     # Replace names in files
-    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
-    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
-    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/terraform_branch/${terraformBranch}/g"
-    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
-    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
-    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/terraform_branch/${terraformBranch}/g"
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/lambda_name_service/${snakeCaseLambdaName}/g" 2> /dev/null
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/LambdaNameService/${LAMBDA_NAME}/g" 2> /dev/null
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/terraform_branch/${terraformBranch}/g" 2> /dev/null
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/lambda_name_service/${snakeCaseLambdaName}/g" 2> /dev/null
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/LambdaNameService/${LAMBDA_NAME}/g" 2> /dev/null
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "" -e "s/terraform_branch/${terraformBranch}/g" 2> /dev/null
     #
     # Add to git commit
     git add $lambdaTerragruntPath
