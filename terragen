@@ -25,10 +25,14 @@
 
 clear
 
+echo $ARTIFACT_ID
 
 if [ $1 = "lambda" ]; then
     echo -n "Enter new lambda name: "
     read LAMBDA_NAME
+
+    echo -n "Enter artifact id: "
+    read ARTIFACT_ID
 
 
     ###################################################
@@ -38,6 +42,15 @@ if [ $1 = "lambda" ]; then
                             | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
                             | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
                             | tr '[:upper:]' '[:lower:]')
+    kebabCaseLambdaName=$(echo $LAMBDA_NAME                                        \
+                            | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1-\2/g'               \
+                            | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1-\2\3/g' \
+                            | tr '[:upper:]' '[:lower:]')
+
+
+    if [ -z $ARTIFACT_ID ]; then
+        ARTIFACT_ID=$(echo "${kebabCaseLambdaName}-aws-lambda" | sed s/"-service"//)
+    fi
 
     ###################################################
     # Templates variables
@@ -102,6 +115,7 @@ if [ $1 = "lambda" ]; then
     # Replace names in files
     find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
     find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/artifactId/${ARTIFACT_ID}/g"
     find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/iam_p_lambda_name.tpl/${lambdaPolicyName}/g"
     find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
     find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"

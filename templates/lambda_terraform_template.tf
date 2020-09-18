@@ -1,7 +1,7 @@
 module "LambdaNameService" {
   source = "git@github.com:Bancar/terraform-aws-lambda.git?ref=2.18"
 
-  artifact_id = artifact_id // TODO Modify!
+  artifact_id = "artifactId"
   artifact_version = var.artifact_version
   repo_name = var.lambda_repo_name
   product_bucket = var.lambda_product_bucket
