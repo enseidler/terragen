@@ -25,17 +25,6 @@
 
 clear
 
-#branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
-#
-#echo $branch
-#
-#snakeCaseLambdaName=$(echo "HabilitameSarlompasAMService"                                               \
-#                        | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
-#                        | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
-#                        | tr '[:upper:]' '[:lower:]')
-
-#echo $snakeCaseLambdaName
-#echo "iam_p_${snakeCaseLambdaName}.tpl" | sed s/"_service"//
 
 if [ $1 = "lambda" ]; then
     echo -n "Enter new lambda name: "
@@ -44,11 +33,11 @@ if [ $1 = "lambda" ]; then
 
     ###################################################
     # Utils
+    terraformBranch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p')
     snakeCaseLambdaName=$(echo $LAMBDA_NAME                                        \
                             | sed 's/\([^A-Z]\)\([A-Z0-9]\)/\1_\2/g'               \
                             | sed 's/\([A-Z0-9]\)\([A-Z0-9]\)\([^A-Z]\)/\1_\2\3/g' \
                             | tr '[:upper:]' '[:lower:]')
-
 
     ###################################################
     # Templates variables
@@ -67,7 +56,7 @@ if [ $1 = "lambda" ]; then
     configsTerragruntTemplate="${templatesPath}/configs_terragrunt_template.hcl"
 
     ####################################################
-    # Terraform
+    # Terraform Variables
     terraformPath="${PWD##*/}"
     #
     lambdaTerraformPath="lambda/${LAMBDA_NAME}"
@@ -89,9 +78,11 @@ if [ $1 = "lambda" ]; then
     #   - Copiar archivo scripts/templates/lambda_terraform_template.tf a lambda/NombreDeLaLambda/main.tf
     mkdir -p -v $lambdaTerraformPath
     cp $lambdaTerraformTemplate "${lambdaTerraformPath}/main.tf"
+    #
     #   - Copiar archivo scripts/templates/lambda_policy_template.tpl a lambda/NombreDeLaLambda/policies/main.tf
     mkdir -p -v $lambdaPoliciesPath
     cp $lambdaPolicyTemplate "${lambdaPoliciesPath}/${lambdaPolicyName}"
+    #
     #   - Correr script de symlinks/variables/outputs
     ln -s ../../commons.tf "${lambdaTerraformPath}/commons.tf"
     ln -s ../global_variables.tf "${lambdaTerraformPath}/global_variables.tf"
@@ -102,10 +93,18 @@ if [ $1 = "lambda" ]; then
     #   - Si tiene configs, copiar scripts/templates/configs_terraform_template.tf a configs/NombreDeLaLambda/main.tf
     mkdir -p -v $configsTerraformPath
     cp $configsTerraformTemplate "${configsTerraformPath}/main.tf"
+    #
     #   - Correr script de symlinks/variables/outputs
     ln -s -v ../../commons.tf "${configsTerraformPath}/commons.tf"
     ln -s -v ../global_variables.tf "${configsTerraformPath}/global_variables.tf"
     cp $configsVariablesTemplate "${configsTerraformPath}/variables.tf"
+    #
+    # Replace names in files
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
+    find $lambdaTerraformPath -type f -print0 | xargs -0 sed -i "s/iam_p_lambda_name.tpl/${lambdaPolicyName}/g"
+    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
+    find $configsTerraformPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
     #
     # Add to git commit
     git add $lambdaTerraformPath
@@ -116,6 +115,7 @@ if [ $1 = "lambda" ]; then
     # TERRAGRUNT
     # Ubicarse en la carpeta root del repo de terragrunt
     cd $terragruntPath
+    #
     # Lambda:
     #   - Copiar archivo scripts/templates/lambda_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
     mkdir -p -v $lambdaTerragruntPath
@@ -125,6 +125,14 @@ if [ $1 = "lambda" ]; then
     #   - Si tiene configs, copiar archivo scripts/templates/configs_terragrunt_template.hcl a dev/lambda/NombreDeLaLambda/terragrunt.hcl
     mkdir -p -v $configsTerragruntPath
     cp $configsTerragruntTemplate "${configsTerragruntPath}/terragrunt.hcl"
+    #
+    # Replace names in files
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
+    find $lambdaTerragruntPath -type f -print0 | xargs -0 sed -i "s/terraform_branch/${terraformBranch}/g"
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/lambda_name_service/${snakeCaseLambdaName}/g"
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/LambdaNameService/${LAMBDA_NAME}/g"
+    find $configsTerragruntPath -type f -print0 | xargs -0 sed -i "s/terraform_branch/${terraformBranch}/g"
     #
     # Add to git commit
     git add $lambdaTerragruntPath

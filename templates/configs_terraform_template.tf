@@ -1,4 +1,4 @@
-module "LambdaNameServiceConfigs" { // TODO Modify module name and configs id!
+module "LambdaNameServiceConfigs" {
   source = "git@github.com:Bancar/terraform-aws-dynamodb-item.git?ref=2.2"
   environment = var.environment
   item = <<ITEM

@@ -3,7 +3,7 @@ locals {
 }
 
 terraform {
-  source = "git::git@github.com:Bancar/${local.common_vars.repository}.git//lambda/LambdaNameService?ref=master" // TODO Modify terraform ref!
+  source = "git::git@github.com:Bancar/${local.common_vars.repository}.git//lambda/LambdaNameService?ref=terraform_branch"
 }
 
 include {
@@ -16,6 +16,6 @@ inputs = {
     BusinessUnit = local.common_vars.business_unit
     Owner = local.common_vars.owner
     Environment = local.common_vars.environment
-    Name = "LambdaNameService" // TODO Modify!
+    Name = "LambdaNameService"
   }
 }

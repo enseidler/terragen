@@ -1,3 +1,3 @@
-output "lambda_name_service_function_name" { // TODO Modify!
+output "lambda_name_service_function_name" {
   value = module.LambdaNameService.function_name
 }

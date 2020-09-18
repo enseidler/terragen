@@ -1,1 +1,1 @@
-variable "lambda_name_service_function_name" {} // TODO Modify!
+variable "lambda_name_service_function_name" {}
