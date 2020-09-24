@@ -1,5 +1,5 @@
 module "LambdaNameService" {
-  source = "git@github.com:Bancar/terraform-aws-lambda.git?ref=2.18"
+  source = "git@github.com:Bancar/terraform-aws-lambda.git?ref=2.25"
 
   artifact_id = "artifactId"
   artifact_version = var.artifact_version
@@ -8,6 +8,8 @@ module "LambdaNameService" {
   function_description = lambda_description // TODO Modify!
   lambda_policy_path = "${path.root}/policies/iam_p_lambda_name.tpl"
   environment = var.environment
-  attach_assume_role_policy = true
-  policy_lambda_vars    = {}
+  policy_lambda_vars = {}
+  tags = var.tags
 }
+
+

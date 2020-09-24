@@ -16,6 +16,5 @@ inputs = {
     BusinessUnit = local.common_vars.business_unit
     Owner = local.common_vars.owner
     Environment = local.common_vars.environment
-    Name = "LambdaNameService"
   }
 }
